@@ -33,7 +33,6 @@ class TestDAOCreate:
         }
         result = user_dao.create(user_data)
         assert result is not None
-        # result is a dict, not a list - access directly
         assert result["email"] == test_email
         assert result["firstName"] == "Test"
         assert result["lastName"] == "User"
@@ -56,7 +55,7 @@ class TestDAOCreate:
     def test_create_invalid_data_type(self, user_dao):
         """TC4: Wrong data type for email should fail"""
         invalid_data = {
-            "email": 12345,  # should be string
+            "email": 12345,
             "firstName": "Test",
             "lastName": "User"
         }
@@ -64,7 +63,7 @@ class TestDAOCreate:
             user_dao.create(invalid_data)
     
     def test_create_duplicate_email(self, user_dao):
-        """TC5: Duplicate email - check what database does"""
+        """TC5: Duplicate email - database allows duplicates (no unique constraint)"""
         test_email = f"dup_{random_string()}@example.com"
         user_data = {
             "email": test_email,
@@ -76,18 +75,14 @@ class TestDAOCreate:
         assert result1 is not None
         assert result1["email"] == test_email
         
-        # Second insert with same email - behavior depends on validator
+        # Second insert with same email - database allows duplicates
         duplicate_data = {
             "email": test_email,
             "firstName": "Second",
             "lastName": "User"
         }
-        # The database might allow duplicates or reject them
-        # We just document what happens
         result2 = user_dao.create(duplicate_data)
-        # If it succeeds, the database allows duplicates
-        # If it fails, there's a unique constraint
-        print(f"Duplicate insert result: {result2}")
+        assert result2 is not None  # Database allows duplicates, no unique constraint
     
     def test_create_verify_document_exists(self, user_dao):
         """TC6: After create, document should be findable"""
