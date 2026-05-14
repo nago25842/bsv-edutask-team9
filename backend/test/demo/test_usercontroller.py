@@ -29,3 +29,9 @@ class TestUserController:
         
         # If your code is fixed, this will pass
         assert result is None
+    def test_get_user_by_email_invalid_format(self):
+     """ Verification of email validation logic"""
+    mock_dao = MagicMock()
+    sut = UserController(dao=mock_dao)
+    with pytest.raises(ValueError):
+        sut.get_user_by_email("not-an-email")
