@@ -1,6 +1,6 @@
 # This creates fake database records for testing
 from unittest.mock import Mock, patch
-from src.controllers.usercontroller import get_user_by_email
+from src.controllers.usercontroller import UserController
 MOCK_USERS = {
     "test@edutask.com": {...}
 }
