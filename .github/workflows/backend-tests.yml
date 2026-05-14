@@ -1,0 +1,26 @@
+name: Backend Unit Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # We use a conditional check to ensure requirements.txt exists in the backend folder
+        if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+    - name: Run Unit Tests
+      run: |
+        cd backend
+        python -m pytest
