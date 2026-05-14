@@ -1,18 +1,31 @@
-# This creates fake database records for testing
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock
+import pytest
 from src.controllers.usercontroller import UserController
-MOCK_USERS = {
-    "test@edutask.com": {...}
-}
 
-# @patch replaces the real database with a fake one
-@patch('src.controllers.usercontroller.db')
-def test_valid_email(self):
-    # Tell the fake database what to return
-    mock_db.users.find_one.return_value = MOCK_USERS["test@edutask.com"]
-    
-    # Call the real function
-    result = get_user_by_email("test@edutask.com")
-    
-    # Check if it worked
-    assert result["email"] == "test@edutask.com"
+class TestUserController:
+    def test_get_user_by_email_valid(self):
+        # 1. Setup: Create a fake DAO and a fake user list
+        mock_dao = MagicMock()
+        mock_user = {'email': 'test@edutask.com', 'firstName': 'Nanda'}
+        mock_dao.find.return_value = [mock_user]
+        
+        # 2. Initialize: Pass the fake DAO into the real Controller
+        sut = UserController(dao=mock_dao)
+        
+        # 3. Act: Run the method
+        result = sut.get_user_by_email('test@edutask.com')
+        
+        # 4. Assert: Check if it returned the user correctly
+        assert result['email'] == 'test@edutask.com'
+        mock_dao.find.assert_called_once_with({'email': 'test@edutask.com'})
+
+    def test_get_user_by_email_empty(self):
+        # This tests your fix! (Returning None when no user is found)
+        mock_dao = MagicMock()
+        mock_dao.find.return_value = [] # Empty list
+        
+        sut = UserController(dao=mock_dao)
+        result = sut.get_user_by_email('nonexistent@edutask.com')
+        
+        # If your code is fixed, this will pass
+        assert result is None
