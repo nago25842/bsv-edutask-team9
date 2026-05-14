@@ -7,7 +7,7 @@ MOCK_USERS = {
 
 # @patch replaces the real database with a fake one
 @patch('src.controllers.usercontroller.db')
-def test_valid_email(self, mock_db):
+def test_valid_email(self):
     # Tell the fake database what to return
     mock_db.users.find_one.return_value = MOCK_USERS["test@edutask.com"]
     
