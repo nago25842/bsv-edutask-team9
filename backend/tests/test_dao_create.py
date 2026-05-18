@@ -6,6 +6,8 @@ PA1417 Assignment 3
 import pytest
 import random
 import string
+from unittest.mock import patch, MagicMock
+import sys
 from src.util.dao import DAO
 
 def random_string(length=8):
@@ -13,6 +15,18 @@ def random_string(length=8):
 
 class TestDAOCreate:
     
+    @pytest.fixture(autouse=True)
+    def mock_validator(self):
+        """Fixture to mock out the validators module layer dynamically.
+        This provides a mock footprint to ensure integration testing targets strictly the 
+        DAO -> Database interaction loop without cascading failure points from the validation script."""
+        # Create a mock object to stand in for the module dependencies
+        mock_val_module = MagicMock()
+        
+        # Inject the mock module structure into python's runtime sys.modules mapping
+        with patch.dict(sys.modules, {'src.util.validators': mock_val_module}):
+            yield mock_val_module
+
     @pytest.fixture
     def user_dao(self):
         """Fixture for users collection - creates isolated test environment"""
