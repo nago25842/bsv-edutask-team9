@@ -22,6 +22,12 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
     });
   });
 
+  // Add this hook to ensure state is clean after each test
+  afterEach(() => {
+    // This assumes your API has a cleanup endpoint for test data
+    cy.request('DELETE', '/api/todos/cleanup'); 
+  });
+
   it('TC1 - should create a new to-do item (R8UC1)', function() {
     cy.get('input[placeholder*="Add"]').type(this.testTask.todos, { force: true });
     cy.get('input[type="submit"]').contains('Add').click({ force: true }); 
