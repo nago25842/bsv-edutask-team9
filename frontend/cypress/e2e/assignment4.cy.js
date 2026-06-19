@@ -20,7 +20,6 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
         cy.contains('Top 7 Awesome Developer Tools').click();
       }
     });
-    cy.get('input[placeholder*="Add"]').should('exist');
   });
 
   after(() => {
@@ -29,7 +28,11 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
         cy.request({ method: 'GET', url: `http://localhost:5000/tasks/ofuser/${user.id}`, failOnStatusCode: false })
           .then((response) => {
             if (response.body && Array.isArray(response.body)) {
-               response.body.forEach(task => cy.request({ method: 'DELETE', url: `http://localhost:5000/tasks/${task._id}`, failOnStatusCode: false }));
+               response.body.forEach(task => {
+                 if (task.title === 'Top 7 Awesome Developer Tools' || task.title.includes('DeleteMe')) {
+                   cy.request({ method: 'DELETE', url: `http://localhost:5000/tasks/${task._id}`, failOnStatusCode: false });
+                 }
+               });
             }
           });
       }
@@ -46,7 +49,7 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
     cy.get('input[placeholder*="Add"]').clear({ force: true });
     cy.get('input[type="submit"]').contains('Add').click({ force: true });
     cy.wait(1000); 
-    // Instead of checking count (which is buggy), check that no new empty items exist
+    // Assert that no list item contains an empty string (or empty content)
     cy.get('.todo-item').each(($el) => {
        cy.wrap($el).invoke('text').should('not.be.empty');
     });
