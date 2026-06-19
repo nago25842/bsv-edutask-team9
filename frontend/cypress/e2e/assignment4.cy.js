@@ -20,6 +20,7 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
         cy.contains('Top 7 Awesome Developer Tools').click();
       }
     });
+    cy.get('input[placeholder*="Add"]').should('exist');
   });
 
   after(() => {
@@ -46,12 +47,11 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
   });
 
   it('TC2 - should not create a to-do item with empty input (R8UC1)', function () {
-    cy.get('input[placeholder*="Add"]').clear({ force: true });
-    cy.get('input[type="submit"]').contains('Add').click({ force: true });
-    cy.wait(1000); 
-    // Assert that no list item contains an empty string (or empty content)
-    cy.get('.todo-item').each(($el) => {
-       cy.wrap($el).invoke('text').should('not.be.empty');
+    cy.get('.todo-item').then(($before) => {
+      const countBefore = $before.length;
+      cy.get('input[placeholder*="Add"]').clear({ force: true });
+      cy.get('input[type="submit"]').contains('Add').click({ force: true });
+      cy.get('.todo-item').should('have.length', countBefore);
     });
   });
 
@@ -66,10 +66,18 @@ describe('Requirement 8: To-Do Item Management (R8UC1, R8UC2, R8UC3)', () => {
   it('TC4 - should mark a to-do item as active (R8UC2)', function () {
     cy.get('input[placeholder*="Add"]').type(this.testTask.todos, { force: true });
     cy.get('input[type="submit"]').contains('Add').click({ force: true });
-    const todo = cy.contains(this.testTask.todos).scrollIntoView({ position: 'center' });
-    todo.parent().find('.checker').first().click({ force: true });
-    todo.parent().find('.checker').first().click({ force: true });
-    cy.contains(this.testTask.todos).should('not.have.css', 'text-decoration', 'line-through');
+
+    // First click: verify item becomes done
+    cy.contains(this.testTask.todos)
+      .parent().find('.checker').first().click({ force: true });
+    cy.contains(this.testTask.todos)
+      .should('have.css', 'text-decoration').and('match', /line-through/);
+
+    // Second click: verify item returns to active
+    cy.contains(this.testTask.todos)
+      .parent().find('.checker').first().click({ force: true });
+    cy.contains(this.testTask.todos)
+      .should('have.css', 'text-decoration').and('not.match', /line-through/);
   });
 
   it('TC5 - should delete a to-do item (R8UC3)', function () {
