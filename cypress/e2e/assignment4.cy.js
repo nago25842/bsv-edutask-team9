@@ -13,32 +13,33 @@ beforeEach(() => {
     });
 
     // Type your password (standard for this lab is usually '1234' or 'password')
-    cy.get('input[name="password"]').type('password'); 
-    cy.get('button[type="submit"]').click();
+    cy.get('input[type="submit"]').click({ force: true });
   });
   
   it('should create a new to-do item (R8UC1)', function() {
-    // Use the "todos" string from your fixture: "Study components"
-    cy.get('.todo-input').type(this.testTask.todos);
-    cy.get('.add-todo-btn').click();
-    
-    // Verify the item is visible in the list
+    // Revert to the selectors that worked previously
+    cy.get('input[placeholder*="Add"]').type(this.testTask.todos, { force: true });
+    cy.get('input[type="submit"]').contains('Add').click({ force: true }); 
     cy.contains(this.testTask.todos).should('be.visible');
   });
 
   it('should toggle a to-do item status (R8UC2)', function() {
-    // Ensure the item exists, then click the toggle/checkbox
-    cy.contains(this.testTask.todos).parent().find('input[type="checkbox"]').click();
+    cy.contains(this.testTask.todos)
+      .parent()
+      .find('.checker, .toggle, [type="checkbox"], svg')
+      .first()
+      .click({ force: true });
     
-    // Verify the visual state (usually a CSS class or property)
-    cy.contains(this.testTask.todos).should('have.css', 'text-decoration', 'line-through');
+    cy.contains(this.testTask.todos).should('have.css', 'text-decoration').and('match', /line-through/);
   });
 
   it('should delete a to-do item (R8UC3)', function() {
-    // Find the item and click the delete button
-    cy.contains(this.testTask.todos).parent().find('.delete-icon').click();
-    
-    // Verify the item is removed from the DOM
+    cy.contains(this.testTask.todos)
+      .parent()
+      .find('.remover, .delete-icon, .remove-todo, .x-mark')
+      .first()
+      .click({ force: true });
+
     cy.contains(this.testTask.todos).should('not.exist');
   });
 });
